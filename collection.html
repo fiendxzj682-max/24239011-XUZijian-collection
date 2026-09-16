@@ -104,14 +104,16 @@ async function goTo(index,{focus=false}={}){
  old.classList.add('is-leaving');next.classList.add('is-active');old.classList.remove('is-active');
  if(motion){
   const random=(a,b)=>a+Math.random()*(b-a);
-  const duration=random(1420,1680),tilt=direction*random(3,6),lift=random(18,32);
+  const duration=random(1350,1750),vertical=Math.random()<.5?-1:1;
+  const tilt=-direction*vertical*random(3,6),lift=random(18,32);
+  const exitY=vertical*random(30,48),exitX=random(105,116);
   const shadow='0 30px 65px #37412c30',rest='0 12px 32px #4b52360c';
   // Lift, slide, then settle: each sheet has a slightly different weight and angle.
   const leave=old.animate([
    {transform:'translate3d(0,0,0) rotate(0) scale(1)',opacity:1,offset:0},
-   {transform:`translate3d(${direction*1.5}%,${-lift*.3}px,0) rotate(${tilt*.25}deg) scale(1.012)`,opacity:1,boxShadow:shadow,offset:.18},
-   {transform:`translate3d(${-direction*78}%,${-lift}px,0) rotate(${-tilt*1.7}deg) scale(.97)`,opacity:.85,offset:.64},
-   {transform:`translate3d(${-direction*112}%,${lift}px,0) rotate(${-tilt*2}deg) scale(.94)`,opacity:0,offset:1}
+   {transform:`translate3d(${direction*1.5}%,${exitY*.08}%,0) rotate(${tilt*.25}deg) scale(1.012)`,opacity:1,boxShadow:shadow,offset:.18},
+   {transform:`translate3d(${-direction*exitX*.69}%,${exitY*.58}%,0) rotate(${-tilt*1.7}deg) scale(.97)`,opacity:.85,offset:.64},
+   {transform:`translate3d(${-direction*exitX}%,${exitY}%,0) rotate(${-tilt*2}deg) scale(.94)`,opacity:0,offset:1}
   ],{duration:duration*.79,easing:'cubic-bezier(.35,0,.25,1)',fill:'forwards'});
   const frames=[
    {transform:`translate3d(${direction*17}%,${lift}px,0) rotate(${tilt}deg) scale(.94)`,opacity:0,boxShadow:rest,offset:0},
