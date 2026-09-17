@@ -1,0 +1,192 @@
+{
+  "made_with": "ARTT3005 board",
+  "board_heading": null,
+  "recorder_is": "person",
+  "key_mapping": {
+    "id": "id",
+    "type": "",
+    "file": "file",
+    "title": "title",
+    "date": "date",
+    "place": "place",
+    "recorder": "recorder",
+    "not_captured": "not_captured",
+    "certainty": "certainty",
+    "内容说明": "",
+    "collection_relation": "",
+    "original_file": "",
+    "media_note": ""
+  },
+  "extra_fields": [
+    "type",
+    "内容说明",
+    "collection_relation",
+    "original_file",
+    "media_note"
+  ],
+  "shown_on_card": null,
+  "groups": [
+    {
+      "heading": "Childhood Memories",
+      "members": [
+        "REC-006",
+        "REC-007",
+        "REC-008",
+        "REC-009",
+        "REC-020"
+      ]
+    },
+    {
+      "heading": "Hometown Dishes ",
+      "members": [
+        "REC-012",
+        "REC-013",
+        "REC-014",
+        "REC-017"
+      ]
+    },
+    {
+      "heading": "Poetic and Sadness",
+      "members": [
+        "REC-001",
+        "REC-002",
+        "REC-003",
+        "REC-004",
+        "REC-010",
+        "REC-011",
+        "REC-019"
+      ]
+    },
+    {
+      "heading": "Events with relatives",
+      "members": [
+        "REC-005",
+        "REC-015",
+        "REC-016",
+        "REC-018"
+      ]
+    }
+  ],
+  "positions": {
+    "REC-001": {
+      "x": 0.4769,
+      "y": 0.0062,
+      "world_x": 352,
+      "world_y": 24
+    },
+    "REC-002": {
+      "x": 0.712,
+      "y": 0.0079,
+      "world_x": 514,
+      "world_y": 26
+    },
+    "REC-003": {
+      "x": 0.0147,
+      "y": 0,
+      "world_x": 33,
+      "world_y": 19
+    },
+    "REC-004": {
+      "x": 0.2478,
+      "y": 0.0025,
+      "world_x": 194,
+      "world_y": 21
+    },
+    "REC-005": {
+      "x": 0.5556,
+      "y": 0.4586,
+      "world_x": 406,
+      "world_y": 433
+    },
+    "REC-006": {
+      "x": 0.5099,
+      "y": 0.7264,
+      "world_x": 375,
+      "world_y": 675
+    },
+    "REC-007": {
+      "x": 0.7598,
+      "y": 0.7196,
+      "world_x": 547,
+      "world_y": 669
+    },
+    "REC-008": {
+      "x": 0.0087,
+      "y": 0.7299,
+      "world_x": 29,
+      "world_y": 678
+    },
+    "REC-009": {
+      "x": 0.258,
+      "y": 0.7283,
+      "world_x": 201,
+      "world_y": 677
+    },
+    "REC-010": {
+      "x": 0.011,
+      "y": 0.1743,
+      "world_x": 31,
+      "world_y": 176
+    },
+    "REC-011": {
+      "x": 0.2495,
+      "y": 0.1758,
+      "world_x": 195,
+      "world_y": 177
+    },
+    "REC-012": {
+      "x": 0,
+      "y": 1,
+      "world_x": 23,
+      "world_y": 922
+    },
+    "REC-013": {
+      "x": 0.2683,
+      "y": 1,
+      "world_x": 208,
+      "world_y": 922
+    },
+    "REC-014": {
+      "x": 0.7743,
+      "y": 0.9996,
+      "world_x": 557,
+      "world_y": 922
+    },
+    "REC-015": {
+      "x": 0.0092,
+      "y": 0.4578,
+      "world_x": 29,
+      "world_y": 432
+    },
+    "REC-016": {
+      "x": 0.2816,
+      "y": 0.458,
+      "world_x": 217,
+      "world_y": 432
+    },
+    "REC-017": {
+      "x": 0.5188,
+      "y": 0.9994,
+      "world_x": 381,
+      "world_y": 921
+    },
+    "REC-018": {
+      "x": 0.8091,
+      "y": 0.4591,
+      "world_x": 581,
+      "world_y": 433
+    },
+    "REC-019": {
+      "x": 0.4823,
+      "y": 0.1747,
+      "world_x": 356,
+      "world_y": 177
+    },
+    "REC-020": {
+      "x": 1,
+      "y": 0.7203,
+      "world_x": 713,
+      "world_y": 669
+    }
+  }
+}

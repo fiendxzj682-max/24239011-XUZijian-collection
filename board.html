@@ -142,6 +142,12 @@ const SYN={
  file:["file","image","img","media","path","src","audio","filename","url"],
  not_captured:["not_captured","notcaptured","missing","absent","what_was_not_captured","lost"],
  certainty:["certainty","confidence","sure","certainty_level"]};
+function mediaPath(value){
+ const f=String(value||"");
+ if(!f)return "";
+ if(/^(?:[a-z][a-z0-9+.-]*:|\/|\.\.?\/)/i.test(f)||f.includes("/"))return f;
+ return "media/"+encodeURIComponent(f);
+}
 const IMG=/\.(jpe?g|png|webp|gif|bmp|heic)$/i, SND=/\.(mp3|wav|m4a|ogg|aac|flac)$/i;
 const CW=150, CH=176;
 
@@ -251,7 +257,7 @@ $("go").onclick=()=>{
     const el=document.createElement("div");
     el.className="card"; el.dataset.id=r.id;
     const f=String(r.file||"");
-    el.innerHTML=(IMG.test(f)?`<img class="thumb" src="${f}" alt="" onerror="this.outerHTML='<div class=glyph>&#10005;</div>'">`
+    el.innerHTML=(IMG.test(f)?`<img class="thumb" src="${esc(mediaPath(f))}" alt="" onerror="this.outerHTML='<div class=glyph>&#10005;</div>'">`
                             :`<div class="glyph">${SND.test(f)?"&#9834;":"&#182;"}</div>`)
       +`<div class="kid">${esc(r.id)}</div><div class="ttl">${esc(r.title||"")}</div>`
       +(xk&&has(r[xk])?`<div class="xtra">${esc(xk)}: ${show(r[xk]).slice(0,44)}</div>`:"")
@@ -275,7 +281,7 @@ async function makeThumbs(recs){
   if(!jobs.length) return;
   let done=0;
   for(const r of jobs){
-    const im=await loadImg(r.file);
+    const im=await loadImg(mediaPath(r.file));
     if(im){
       try{
         const TW=440, TH=310;
@@ -409,7 +415,7 @@ function inspect(id){
   const r=RECMAP[id]; if(!r) return;
   const f=String(r.file||"");
   $("inspBody").innerHTML=`<h3>${esc(r.title||"")}</h3><div class="cid">${esc(r.id)}</div>`
-    +(IMG.test(f)?`<img src="${f}" alt="">`:SND.test(f)?`<audio controls src="${f}"></audio>`:"")
+    +(IMG.test(f)?`<img src="${esc(mediaPath(f))}" alt="">`:SND.test(f)?`<audio controls src="${esc(mediaPath(f))}"></audio>`:"")
     +"<dl>"+ALLKEYS.filter(k=>k!=="id"&&k!=="title").map(k=>
       `<div class="${k==="not_captured"?"nc":""} ${has(r[k])?"":"absent"}"><dt>${esc(k)}</dt><dd>${has(r[k])?show(r[k]):"not in this record"}</dd></div>`
      ).join("")+"</dl>";
@@ -462,7 +468,7 @@ $("png").onclick=async()=>{
   const imgs=await Promise.all(cards.map(c=>{
     const id=c.dataset.id, f=String((RECMAP[id]||{}).file||"");
     if(!IMG.test(f)) return Promise.resolve(null);
-    return loadImg(THUMB.get(id)||f);       // cached bitmap when we have one
+    return loadImg(THUMB.get(id)||mediaPath(f));       // cached bitmap when we have one
   }));
 
   x.textBaseline="top";
