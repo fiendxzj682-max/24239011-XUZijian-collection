@@ -64,6 +64,7 @@ label.radio{display:inline-flex;align-items:center;gap:7px;margin-right:22px;fon
 #bar .sp{flex:1}
 #msg{color:#9FB3AA;font:12px ui-monospace,monospace}
 #help{position:fixed;top:14px;right:16px;background:rgba(20,25,26,.88);color:var(--bg);padding:11px 14px;font:12px ui-monospace,monospace;line-height:1.7;z-index:41}
+#legend{position:fixed;left:14px;top:14px;z-index:8;background:#ffffffee;padding:12px;max-width:340px;font-size:12px;pointer-events:none}#legend:empty{display:none}#legend div{margin:6px 0}#bar{flex-wrap:wrap}#scheme{max-width:110px}.card{outline-offset:3px}
 </style></head>
 <body>
 
@@ -110,7 +111,7 @@ label.radio{display:inline-flex;align-items:center;gap:7px;margin-right:22px;fon
 
 <div id="stage"><div id="world"></div><div id="marquee"></div></div>
 
-<div id="insp"><span class="x" id="inspX">&times;</span><div id="inspBody"></div></div>
+<div id="legend"></div><div id="insp"><span class="x" id="inspX">&times;</span><div id="inspBody"></div></div>
 
 <div id="help" style="display:none">
   drag empty space &nbsp;&middot;&nbsp; pan<br>
@@ -121,7 +122,7 @@ label.radio{display:inline-flex;align-items:center;gap:7px;margin-right:22px;fon
 </div>
 
 <div id="bar" style="display:none">
-  <input id="bh" placeholder="a heading for the whole board &mdash; optional">
+  <label>Grouping <select id="scheme"><option>none</option><option>mine</option><option>words</option><option>absence</option></select></label><input id="bh" placeholder="a heading for the whole board &mdash; optional">
   <button id="grp" class="sec">Group selection</button>
   <button id="all" class="sec">All fields</button>
   <button id="fit" class="sec">Fit</button>
@@ -247,7 +248,8 @@ function allBlock(r){
     (has(r[k])?`<span>${show(r[k]).slice(0,60)}</span>`:`<span class="miss">&mdash; not in this record</span>`)+
     `</div>`).join("");
 }
-$("go").onclick=()=>{
+$("go").onclick=async()=>{
+  $("go").disabled=true;
   const recs=norm(), xk=$("extraPick").value;
   recs.forEach(r=>RECMAP[r.id]=r);
   ALLKEYS=[...new Set(recs.flatMap(r=>Object.keys(r)))];
@@ -267,9 +269,35 @@ $("go").onclick=()=>{
     el.style.transform=`translate3d(${wx}px,${wy}px,0)`;
     world.appendChild(el); cards.push(el);
   });
+  await restoreBoard();
   applyT(); fit();
-  makeThumbs(recs);
+  await makeThumbs(recs);
 };
+
+const schemes={mine:[],words:[],absence:[]};
+const palette=['#a64b38','#337a8a','#7960a3','#8c702a','#367b54','#b0527b'];
+function chosenGroups(){return $('scheme').value==='mine'?groups:schemes[$('scheme').value]||[];}
+function groupColor(id){const i=chosenGroups().findIndex(g=>g.members.includes(id));return i<0?null:palette[i%palette.length];}
+function colorBoard(){
+ const selected=$('scheme').value;
+ cards.forEach(c=>{const color=groupColor(c.dataset.id);c.style.outline=selected==='none'?'':color?'3px solid '+color:'1px dashed #888';});
+ $('legend').replaceChildren();
+ if(selected==='none')return;
+ const title=document.createElement('strong');title.textContent='Grouping · '+selected;$('legend').append(title);
+ chosenGroups().forEach((g,i)=>{const row=document.createElement('div');row.style.color=palette[i%palette.length];row.textContent='● '+g.heading+' ('+g.members.length+')';$('legend').append(row);});
+}
+$('scheme').onchange=colorBoard;
+async function restoreBoard(){
+ try{
+  const response=await fetch('arrangement.json');if(!response.ok)throw Error('arrangement.json');const a=await response.json();
+  cards.forEach(c=>{const p=a.positions?.[c.dataset.id];if(p&&Number.isFinite(p.world_x)&&Number.isFinite(p.world_y)){POS.set(c.dataset.id,{x:p.world_x,y:p.world_y});c.style.transform=`translate3d(${p.world_x}px,${p.world_y}px,0)`;}});
+  $('bh').value=a.board_heading||'';
+  groups=(a.groups||[]).map(g=>({...g,els:cards.filter(c=>g.members.includes(c.dataset.id)),el:null}));
+  drawGroups();
+ }catch(e){alert('未能恢复 arrangement.json。请确认文件在同一目录；当前显示初始排列。');}
+ for(const scheme of ['words','absence']){try{const r=await fetch('grouping-'+scheme+'.json');if(!r.ok)throw Error(scheme);schemes[scheme]=(await r.json()).groups;}catch{const option=[...$('scheme').options].find(o=>o.value===scheme);option.disabled=true;}}
+ $('scheme').value='mine';colorBoard();
+}
 
 /* Phone photographs are 3000-4000px wide and are being shown at 136px.
    The browser decodes every one of them at full size and keeps it in memory,
@@ -450,7 +478,8 @@ $("png").onclick=async()=>{
   const minX=Math.min(...xs), minY=Math.min(...ys);
   const bw=Math.max(...xs)+CW-minX, bh=Math.max(...ys)+CH-minY;
   const s=Math.min(2600/bw,2000/bh,3), PAD=70, TOP=groups.length?150:120;
-  const W=Math.round(bw*s)+PAD*2, H=Math.round(bh*s)+TOP+PAD;
+  const legendGroups=chosenGroups();
+  const W=Math.max(1100,Math.round(bw*s)+PAD*2), H=Math.round(bh*s)+TOP+PAD+legendGroups.length*38+55;
   const cv=document.createElement("canvas"); cv.width=W; cv.height=H;
   const x=cv.getContext("2d");
   const wx=v=>PAD+(v-minX)*s, wy=v=>TOP+(v-minY)*s;
@@ -476,7 +505,7 @@ $("png").onclick=async()=>{
     const r=RECMAP[c.dataset.id]||{}, f=String(r.file||"");
     const cp=at(c), px=wx(cp.x), py=wy(cp.y), pw=CW*s, ph=CH*s, p=7*s, iw=pw-p*2, ih=96*s;
     x.fillStyle="#fff"; x.fillRect(px,py,pw,ph);
-    x.strokeStyle="#C3CDC7"; x.lineWidth=Math.max(1,1.2*s); x.strokeRect(px,py,pw,ph);
+    x.strokeStyle=$('scheme').value==='none'?'#C3CDC7':groupColor(c.dataset.id)||'#888'; x.lineWidth=Math.max(2,2*s);x.setLineDash($('scheme').value!=='none'&&!groupColor(c.dataset.id)?[5,4]:[]);x.strokeRect(px,py,pw,ph);x.setLineDash([]);
     if(imgs[i]){
       const im=imgs[i], box=iw/ih; let sw=im.width, sh=im.height, sxx=0, syy=0;
       if(im.width/im.height>box){ sw=im.height*box; sxx=(im.width-sw)/2; }
@@ -503,10 +532,12 @@ $("png").onclick=async()=>{
     x.fillText(groups.map(g=>g.heading||"untitled").join("   \u00b7   ").slice(0,160), PAD, 116);
   }
 
+  x.font='20px system-ui, sans-serif';x.textBaseline='top';
+  legendGroups.forEach((g,i)=>{x.fillStyle=palette[i%palette.length];x.fillText('● '+g.heading+' ('+g.members.length+')',PAD,Math.round(bh*s)+TOP+35+i*38,W-PAD*2);});
   try{
     const a=document.createElement("a");
     a.href=cv.toDataURL("image/png");
-    a.download="board-"+new Date().toISOString().slice(0,10)+".png"; a.click();
+    a.download="board-"+$("scheme").value+"-"+new Date().toISOString().slice(0,10)+".png"; a.click();
     $("msg").textContent=`exported ${W}\u00d7${H}px`;
   }catch(err){
     $("msg").textContent="";
